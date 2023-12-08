@@ -29,11 +29,25 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.text.primary,
     },
   },
+  '& .MuiInputBase-root': {
+    '& .MuiOutlinedInput-input:-webkit-autofill': {
+      WebkitBoxShadow:
+        theme.palette.mode === 'dark'
+          ? '0 0 0 100px #17181d inset'
+          : '0 0 0 100px #8b8b8b00 inset',
+      WebkitTextFillColor: theme.palette.text.primary,
+      caretColor: theme.palette.primary.main,
+      borderRadius: 'inherit',
+      '&:focus': {
+        borderColor: theme.palette.text.primary,
+      },
+    },
+  },
   '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.mode === 'dark' ? '#90f9b9' : '#0089fa',
   },
   '& input::selection': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#292929' : '#abd9ff',
+    backgroundColor: theme.palette.mode === 'dark' ? '#abd9ff' : 'rgba(217, 220, 255, 1)',
   },
 }));
 
@@ -122,10 +136,9 @@ export default function SignUpPage() {
     }
 
     try {
-      // console.log({ name, email, password, isAdmin });
-      const response = await dispatch(handleSignup({ name, email, password, isAdmin }));
-      
-      console.log(response);
+      const response = await dispatch(
+        handleSignup({ name, email, password, isAdmin })
+      );
 
       navigate('/login');
     } catch (error) {

@@ -10,9 +10,7 @@ import {
   Container,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import toast from 'react-hot-toast';
 import CustomBtn from '../components/Buttons/CustomBtn';
-import { useState } from 'react';
 import { validateForm } from '../utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleLogin } from '../redux/asyncThunk/auth';
@@ -21,8 +19,8 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   '& input:-webkit-autofill': {
     WebkitBoxShadow:
       theme.palette.mode === 'dark'
-        ? '0 0 0 100px #111111 inset'
-        : '0 0 0 100px #fafafa inset',
+        ? '0 0 0 100px #17181d inset'
+        : '0 0 0 100px #8b8b8b00 inset',
     WebkitTextFillColor: theme.palette.text.primary,
     caretColor: theme.palette.primary.main,
     borderRadius: 'inherit',
@@ -30,11 +28,26 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.text.primary,
     },
   },
+  '& .MuiInputBase-root': {
+    '& .MuiOutlinedInput-input:-webkit-autofill': {
+      WebkitBoxShadow:
+        theme.palette.mode === 'dark'
+          ? '0 0 0 100px #17181d inset'
+          : '0 0 0 100px #8b8b8b00 inset',
+      WebkitTextFillColor: theme.palette.text.primary,
+      caretColor: theme.palette.primary.main,
+      borderRadius: 'inherit',
+      '&:focus': {
+        borderColor: theme.palette.text.primary,
+      },
+    },
+  },
   '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.mode === 'dark' ? '#90f9b9' : '#0089fa',
   },
   '& input::selection': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#292929' : '#abd9ff',
+    backgroundColor:
+      theme.palette.mode === 'dark' ? '#abd9ff' : 'rgba(217, 232, 255, 1)',
   },
 }));
 
@@ -73,9 +86,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const dipatch = useDispatch();
 
-  const { loginLoading, isAuthenticated } = useSelector(
-    (state) => state.authPage
-  );
+  const { loginLoading } = useSelector((state) => state.authPage);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -89,14 +100,12 @@ export default function LoginPage() {
     }
 
     try {
-      await dipatch(handleLogin({ email, password }));
-      console.log({
-        loginLoading,
-        isAuthenticated,
-      });
-      if (loginLoading === false && isAuthenticated === true) {
-        return navigate('/');
-      }
+      await dipatch(
+        handleLogin({
+          redirect: (end) => navigate(end),
+          data: { email, password },
+        })
+      );
     } catch (error) {
       console.error(error);
     }

@@ -29,11 +29,23 @@ const listItems = [
   },
 ];
 
+const userListItems = [
+  {
+    text: 'Users',
+    link: '/users',
+  },
+  {
+    text: 'Profile',
+    link: '/profile',
+  },
+];
+
 export default function SideDrawer() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
   const { activeTab } = useSelector((state) => state.homePage);
+  const { role } = useSelector((state) => state.authPage);
   const handleTabClick = (text, link) => {
     navigate(link);
     dispatch(setActiveTab(text));
@@ -62,6 +74,13 @@ export default function SideDrawer() {
         open={open}
         onClose={() => setOpen(false)}
         sx={{
+          '& .MuiDrawer-content': {
+            md: {
+              borderRadius: '15px',
+              margin: '20px',
+              maxHeight: 'calc(100vh - 45px)',
+            },
+          },
           '--Drawer-transitionDuration': open ? '0.4s' : '0.2s',
           '--Drawer-transitionFunction': open
             ? 'cubic-bezier(0.79,0.14,0.15,0.86)'
@@ -70,28 +89,36 @@ export default function SideDrawer() {
       >
         <Box role="presentation" sx={{ p: 2 }}>
           <List>
-            {listItems.map((text) => (
-              <ListItem key={text}>
-                <ListItemButton
-                  selected={activeTab === text.text}
-                  sx={{
-                    '&.Mui-selected': {
-                      backgroundColor: (theme) =>
-                        theme.palette.mode === 'dark' ? 'white' : '#1976D2',
-                      color: (theme) =>
-                        theme.palette.mode === 'dark' ? 'black' : 'white',
-                      paddingBlock: '8px',
-                      fontSize: '16px',
-                      borderRadius: '8px',
-                      transition: 'all 0.3s cubic-bezier(0.3, 0.07, 0, 1.09)',
-                    },
-                  }}
-                  onClick={() => handleTabClick(text.text, text.link)}
-                >
-                  {text.text}
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {(role === 'businessUser' ? userListItems : listItems).map(
+              (text) => (
+                <ListItem key={text.text + Math.random()}>
+                  <ListItemButton
+                    selected={activeTab === text.text}
+                    sx={{
+                      transition: 'padding 0.2s ease-out',
+                      '&.Mui-selected': {
+                        backgroundColor: (theme) =>
+                          theme.palette.mode === 'dark' ? 'white' : '#1976D2',
+                        color: (theme) =>
+                          theme.palette.mode === 'dark' ? 'black' : 'white',
+                        paddingBlock: '8px',
+                        fontSize: '16px',
+                        borderRadius: '8px',
+                        transition: 'all 0.3s cubic-bezier(0.3, 0.07, 0, 1.09)',
+                      },
+                      '&:hover': {
+                        borderRadius: '8px',
+                        paddingBlock: '8px',
+                        fontSize: '16px',
+                      },
+                    }}
+                    onClick={() => handleTabClick(text.text, text.link)}
+                  >
+                    {text.text}
+                  </ListItemButton>
+                </ListItem>
+              )
+            )}
           </List>
         </Box>
       </Drawer>

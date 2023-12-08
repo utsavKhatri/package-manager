@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  fetchDashboard,
   fetchPackages,
   handleCreatePackage,
   handleDeletePackage,
@@ -17,6 +18,8 @@ const initialState = {
   deletePackageLoading: false,
   createPackageLoading: false,
   editPackageLoading: false,
+  dashboardLoading: false,
+  dashboardData: null,
 };
 export const homeSlice = createSlice({
   name: 'homePage',
@@ -49,6 +52,9 @@ export const homeSlice = createSlice({
     setEditPackageLoading: (state, action) => {
       state.editPackageLoading = action.payload;
     },
+    setDashboardLoading: (state, action) => {
+      state.dashboardLoading = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -81,7 +87,13 @@ export const homeSlice = createSlice({
       })
       .addCase(handleEditPackage.rejected, (state, action) => {
         state.editPackageLoading = false;
-      });
+      }).addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.dashboardLoading = false;
+        state.dashboardData = action.payload;
+      }).addCase(fetchDashboard.rejected, (state, action) => {
+        state.dashboardLoading = false;
+        state.dashboardData = null;
+      })
   },
 });
 
@@ -95,6 +107,7 @@ export const {
   setPageSize,
   setCreatePackageLoading,
   setEditPackageLoading,
+  setDashboardLoading
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

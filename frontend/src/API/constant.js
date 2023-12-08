@@ -20,4 +20,5 @@ export const URL = {
   DELETE_USER: '/users/',
 
   ASSIGN_PACKAGE: '/packages/assign',
+  DASHBOARD: '/packages/dashboard',
 };

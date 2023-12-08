@@ -20,6 +20,7 @@ import ProfilePage from './pages/ProfilePage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 
 import './App.css';
+import PayWallPage from './pages/PayWallPage.jsx';
 
 const materialTheme = materialExtendTheme();
 
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/packages" element={<Packages />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/users" element={<UsersPage />} />
+                <Route path="/update-package" element={<PayWallPage />} />
               </Route>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />

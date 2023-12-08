@@ -12,6 +12,8 @@ import { User } from './models/User.js';
 import authRouter from './routes/auth.js';
 import packageRouter from './routes/package.js';
 import userRouter from './routes/user.js';
+import { wenhooks } from './controllers/payment.js';
+import paymentRouter from './routes/payment.js';
 
 dotenv.config();
 const app = express();
@@ -36,6 +38,9 @@ mongoose
 app.use('/packages', packageRouter);
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
+app.use('/payment', paymentRouter);
+
+app.post('/webhook', wenhooks);
 
 const server = http.createServer(app);
 
@@ -94,6 +99,20 @@ server.listen(PORT, async () => {
       });
 
       superAdminId = superAdmin._id;
+
+      const trailPackExists = await Package.findOne({
+        name: 'Trial Pack',
+      });
+
+      if (!trailPackExists) {
+        await Package.create({
+          name: 'Trial Pack',
+          price: 0,
+          status: true,
+          createdBy: superAdminId,
+          duration: 14,
+        });
+      }
     } else {
       superAdminId = admin._id;
 

@@ -44,7 +44,13 @@ const CustomTable = ({ data, columns, totalPages }) => {
           paginationMode="server"
           slots={{
             toolbar: () => (
-              <GridToolbarContainer sx={{ marginLeft: 'auto' }}>
+              <GridToolbarContainer
+                sx={{
+                  width: '100%',
+                  justifyContent: 'flex-end',
+                  display: 'flex',
+                }}
+              >
                 <CustomMenuComp />
               </GridToolbarContainer>
             ),
@@ -70,6 +76,25 @@ const CustomTable = ({ data, columns, totalPages }) => {
               margin: 0,
               padding: 0,
               overflow: 'hidden',
+              '& .MuiDataGrid-virtualScroller': {
+                '&::-webkit-scrollbar': {
+                  width: '2px',
+                  height: '7px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: (theme) =>
+                    theme.palette.mode === 'light' ? '#FFFFFF' : '#1E1E1E',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === 'light' ? '#e8e8e8' : '#2D2D2D',
+                  borderRadius: '8px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: (theme) =>
+                    theme.palette.mode === 'light' ? '#d3d3d3' : '#555',
+                },
+              },
             },
             '& .MuiDataGrid-toolbarContainer': {
               paddingBottom: '8px',
@@ -90,8 +115,9 @@ const CustomTable = ({ data, columns, totalPages }) => {
               },
             },
             '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
-              fontSize: '14px',
-              fontWeight: '500',
+              fontSize: (theme) =>
+                theme.breakpoints.up('sm') ? '16px' : '14px',
+              fontWeight: '400',
             },
             overflow: 'auto',
             scrollbarWidth: 'thin',

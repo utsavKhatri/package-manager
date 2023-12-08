@@ -14,6 +14,8 @@ import { setCurrentPage } from '../redux/slice/userSlice';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 
 import Loader from '../components/common/Loader';
+import { useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const EditUser = lazy(() => import('../components/users/EditUser'));
 const AddUser = lazy(() => import('../components/users/AddUser'));
@@ -21,13 +23,22 @@ const CustomTable = lazy(() => import('../components/Tables/CustomTable'));
 
 const UsersPage = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+
   const { users, usersLoading, currentPage, totalPage } = useSelector(
     (state) => state.userPage
   );
+  const { role } = useSelector((state) => state.authPage);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const successMessage = searchParams.get('success');
+
+    if (successMessage) {
+      toast.success(successMessage, { duration: 5000 });
+    }
     dispatch(fetchUsers());
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, location.search]);
 
   const handlePaginationChange = (event, value) => {
     dispatch(setCurrentPage(value));
@@ -83,7 +94,14 @@ const UsersPage = () => {
       headerName: 'Email',
       editable: false,
       flex: 1,
-      minWidth: 'fit-content',
+      minWidth: 175,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.row.email} TransitionComponent={Zoom} arrow>
+            <span>{params.row.email}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       field: 'isActive',
@@ -100,9 +118,21 @@ const UsersPage = () => {
       headerName: 'Role',
       editable: false,
       flex: 1,
-      minWidth: 90,
+      minWidth: 125,
       valueGetter: (params) => {
         return params.row.isAdmin ? 'Admin' : 'Business User';
+      },
+    },
+    {
+      field: 'selfRegistration',
+      headerName: 'Invited By',
+      editable: false,
+      flex: 1,
+      minWidth: 125,
+      valueGetter: (params) => {
+        return params.row.selfRegistration
+          ? 'Self Registration'
+          : params.row.createdBy.name;
       },
     },
   ];
@@ -130,7 +160,7 @@ const UsersPage = () => {
               }}
             >
               <h1>Users</h1>
-              <AddUser />
+              {role === 'admin' && <AddUser />}
             </Box>
             <CustomTable
               data={users}

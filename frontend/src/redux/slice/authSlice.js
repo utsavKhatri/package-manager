@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { handleLogin, handleSignup } from '../asyncThunk/auth';
-
-const user = JSON.parse(localStorage.getItem('user'));
+import { hadnleLogout, handleLogin, handleSignup } from '../asyncThunk/auth';
 
 const initialState = {
-  isAuthenticated: user?.token ? true : false,
-  role: '',
+  isAuthenticated:
+    JSON.parse(localStorage.getItem('user'))?.token !== null ? true : false,
+  role: JSON.parse(localStorage.getItem('user'))?.role || '',
   loginLoading: false,
   signupLoading: false,
   isRegistered: false,
@@ -30,12 +29,11 @@ export const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(handleLogin.fulfilled, (state, action) => {
-        if(action.payload?.token) {
-          localStorage.setItem('user', JSON.stringify(action.payload));
-          state.isAuthenticated = true;
-        }
-        state.role = action.payload.role;
-        state.loginLoading = false;
+        Promise.all([
+          (state.isAuthenticated = true),
+          (state.role = action.payload.role),
+          (state.loginLoading = false),
+        ]);
       })
       .addCase(handleLogin.rejected, (state, action) => {
         state.isAuthenticated = false;
@@ -49,6 +47,11 @@ export const authSlice = createSlice({
       .addCase(handleSignup.rejected, (state, action) => {
         state.isRegistered = false;
         state.signupLoading = false;
+      })
+      .addCase(hadnleLogout.fulfilled, (state, action) => {
+        localStorage.removeItem('user');
+        state.isAuthenticated = false;
+        state.role = '';
       });
   },
 });

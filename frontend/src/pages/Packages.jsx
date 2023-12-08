@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
 import {
   Box,
+  Chip,
   Container,
   IconButton,
   Pagination,
@@ -9,7 +10,11 @@ import {
   Zoom,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPackages, handleDeletePackage } from '../redux/asyncThunk/home';
+import {
+  fetchPackages,
+  handleDeletePackage,
+  handleEditPackage,
+} from '../redux/asyncThunk/home';
 import Loader from '../components/common/Loader';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 import { setCurrentPage } from '../redux/slice/homeSlice';
@@ -52,7 +57,7 @@ const Packages = () => {
             <EditPackage packageData={values.row} />
             <IconButton
               aria-describedby="delete-package"
-              onClick={() => dispatch(handleDeletePackage(values.row._id))}
+              onClick={async() => await dispatch(handleDeletePackage(values.row._id))}
               key={`delete-${values.row._id}`}
               role="button"
             >
@@ -107,6 +112,50 @@ const Packages = () => {
       minWidth: 150,
       valueGetter: (params) => {
         return params.row.createdBy.name;
+      },
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      editable: false,
+      flex: 1,
+      type: 'actions',
+      minWidth: 100,
+      getActions: (params) => {
+        const value = params.row.status ? 'Active' : 'Inactive';
+        const color = [
+          params.row.status ? '#d1ffc9' : '#ffc9c9',
+          params.row.status ? '#8ce065' : '#e06565',
+        ];
+        return [
+          <Chip
+            key={`status-${params.row._id}`}
+            mx={'auto'}
+            label={value}
+            sx={{
+              minWidth:90,
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'dark' ? color[1] : color[0],
+              color: 'black',
+              '&:hover': {
+                backgroundColor: (theme) =>
+                  theme.palette.mode === 'dark' ? color[0] : color[1],
+              },
+              boxShadow: (theme)=> theme.shadows[1],
+            }}
+            variant="filled"
+            onClick={() =>
+              dispatch(
+                handleEditPackage({
+                  id: params.row._id,
+                  data: {
+                    status: params.row.status === true ? false : true,
+                  },
+                })
+              )
+            }
+          />,
+        ];
       },
     },
   ];

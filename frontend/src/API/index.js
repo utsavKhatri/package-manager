@@ -10,9 +10,7 @@ const handleRequest = async (
   data = null,
   options = {}
 ) => {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+  const headers = {};
 
   if (isAuthenticated) {
     const userToken = JSON.parse(localStorage.getItem('user'))?.token;

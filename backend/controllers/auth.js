@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User, validateUser } from '../models/User.js';
 import { Package } from '../models/Package.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
+import { isPast } from 'date-fns';
 
 export const login = async (req, res) => {
   try {
@@ -16,6 +17,10 @@ export const login = async (req, res) => {
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    if (user.isActive === false) {
+      return res.status(400).json({ message: 'Your account is deactivated' });
     }
 
     const token = jwt.sign({ id: user._id }, 'your-secret-key', {
@@ -36,11 +41,17 @@ export const login = async (req, res) => {
     if (user.isAdmin === false) {
       const userPackageMap = await UserPackageMap.findOne({ user: user._id });
 
-      if (userPackageMap && userPackageMap.expiredAt >= new Date()) {
-        userData.role = 'businessUser';
-      } else {
-        userData.isExpired = true;
-        userData.role = 'businessUser';
+      if (userPackageMap) {
+        if (isPast(new Date(userPackageMap.expiredAt))) {
+
+          userData.role = 'businessUser';
+          userData.isExpired = true;
+          userPackageMap.isExpired = true;
+          await userPackageMap.save();
+        } else {
+      
+          userData.role = 'businessUser';
+        }
       }
     } else {
       userData.role = 'admin';

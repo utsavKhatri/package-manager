@@ -13,9 +13,12 @@ import { Stack } from '@mui/material';
 import SideDrawer from './SideDrawer';
 import { useColorScheme as useMaterialColorScheme } from '@mui/material/styles';
 import { useColorScheme as useJoyColorScheme } from '@mui/joy/styles';
+import { useDispatch } from 'react-redux';
+import { hadnleLogout } from '../../redux/asyncThunk/auth';
 
 export default function Navbar({ children }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const dispatch = useDispatch();
   const { mode, setMode } = useMaterialColorScheme();
   const { setMode: setJoyMode } = useJoyColorScheme();
   const handleThemeToggle = () => {
@@ -74,7 +77,9 @@ export default function Navbar({ children }) {
               onClose={handleClose}
             >
               <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={handleClose}>My account</MenuItem>
+              <MenuItem onClick={() => dispatch(hadnleLogout())}>
+                Logout
+              </MenuItem>
             </Menu>
           </div>
         </Toolbar>

@@ -92,11 +92,32 @@ export const updateUser = async (req, res) => {
     if (email) {
       isExist.email = email;
     }
-    if (isActive) {
+    if (isActive !== null || isActive !== undefined) {
       isExist.isActive = isActive;
     }
     if (isAdmin !== null || isAdmin !== undefined) {
-      isExist.isAdmin = isAdmin;
+      if (isAdmin === true && isExist.isAdmin === false) {
+        // assign trial pack to business user
+        const TrialPackage = await Package.findOne({ name: 'Trial Pack' });
+
+        // expiredAt set to duration of package
+        let expiredAt = new Date();
+        expiredAt.setDate(expiredAt.getDate() + TrialPackage.duration);
+
+        const newUserPackageMap = await UserPackageMap.create({
+          user: isExist._id,
+          package: TrialPackage._id,
+          enrolledAt: new Date(),
+          expiredAt,
+          isExpired: false,
+        });
+        isExist.isAdmin = isAdmin;
+      } else if (isAdmin === false && isExist.isAdmin === true) {
+        // remove trial pack from business user
+        await UserPackageMap.deleteOne({ user: isExist._id });
+
+        isExist.isAdmin = isAdmin;
+      }
     }
 
     isExist.updatedBy = req.user.id;
@@ -104,7 +125,6 @@ export const updateUser = async (req, res) => {
 
     return res.json({
       message: 'User updated successfully',
-      user: updatedUser,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -120,6 +140,16 @@ export const deleteUser = async (req, res) => {
 
     if (!userExists) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (req.user.id === userId) {
+      return res.status(403).json({ message: 'You cannot delete yourself' });
+    }
+
+    if (req.user.isAdmin === false && userExists.isAdmin === true) {
+      return res
+        .status(403)
+        .json({ message: 'Unauthorized to delete this user' });
     }
 
     const mapingExists = await UserPackageMap.find({
@@ -201,6 +231,10 @@ export const getUsers = async (req, res) => {
           populate: {
             path: 'package',
           },
+        },
+        {
+          path: 'createdBy',
+          select: 'name email',
         },
       ])
       .limit(options.limit)

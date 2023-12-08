@@ -3,6 +3,7 @@ import { delCall, getCall, postCall, putCall } from '../../API';
 import { URL } from '../../API/constant';
 import {
   setCreatePackageLoading,
+  setDashboardLoading,
   setDeletePackageLoading,
   setEditPackageLoading,
   setPackageLoading,
@@ -59,6 +60,18 @@ export const handleDeletePackage = createAsyncThunk(
       dispatch(setDeletePackageLoading(true));
       const response = await delCall(`${URL.DELETE_PACKAGE}${id}`, true);
       dispatch(fetchPackages());
+      return fulfillWithValue(response);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Error occurred');
+    }
+  }
+);
+export const fetchDashboard = createAsyncThunk(
+  'homePage/fetchDashboard',
+  async (_, { rejectWithValue, fulfillWithValue, dispatch }) => {
+    try {
+      dispatch(setDashboardLoading(true));
+      const response = await getCall(URL.DASHBOARD, true);
       return fulfillWithValue(response);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error occurred');
