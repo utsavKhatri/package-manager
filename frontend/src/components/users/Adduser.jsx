@@ -74,7 +74,8 @@ export default function AddUser() {
   return (
     <>
       <CustomAddAccBtn
-        aria-label="add-pack-btn"
+        aria-label="Add User"
+        aria-describedby='add-user-btn'
         role="button"
         variant="contained"
         onClick={() => handleClickOpen()}

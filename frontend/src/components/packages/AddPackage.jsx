@@ -75,7 +75,8 @@ export default function AddPackage() {
   return (
     <>
       <CustomAddAccBtn
-        aria-label="add-pack-btn"
+        aria-label="Add Package"
+        aria-describedby="add-package"
         role="button"
         variant="contained"
         onClick={() => handleClickOpen()}

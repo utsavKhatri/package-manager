@@ -1,6 +1,7 @@
 import React, { useEffect, lazy, Suspense } from 'react';
 import {
   Box,
+  Button,
   Chip,
   Container,
   IconButton,
@@ -136,6 +137,7 @@ const UsersPage = () => {
             key={`status-${params.row._id}`}
             mx={'auto'}
             label={value}
+            aria-describedby="status"
             sx={{
               minWidth: 90,
               backgroundColor: (theme) =>
@@ -189,6 +191,7 @@ const UsersPage = () => {
       getActions: (values) => {
         return [
           <IconButton
+            aria-label="DeleteForeverTwoToneIcon"
             aria-describedby="delete-users"
             onClick={() => dispatch(handleDeleteUser(values.row._id))}
             key={`delete-${values.row._id}`}
@@ -235,6 +238,9 @@ const UsersPage = () => {
               key={`status-${params.row._id}`}
               mx={'auto'}
               label={value}
+              component={Button}
+              aria-label={value}
+              aria-describedby="status"
               sx={{
                 minWidth: 90,
                 backgroundColor: (theme) =>

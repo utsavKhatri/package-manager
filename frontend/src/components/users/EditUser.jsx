@@ -64,7 +64,8 @@ export default function EditUser({ userData, updateProfile = false }) {
   return (
     <>
       <IconButton
-        aria-label="edit-trans-btn"
+        aria-label="edit-user-btn"
+        aria-describedby='edit-user'
         role="button"
         onClick={() => handleClickOpen()}
       >

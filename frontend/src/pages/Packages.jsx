@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
 import {
   Box,
+  Button,
   Chip,
   Container,
   IconButton,
@@ -64,6 +65,7 @@ const Packages = () => {
                 }
                 key={`delete-${values.row._id}`}
                 role="button"
+                aria-label='DeleteForeverTwoToneIcon'
               >
                 <DeleteForeverTwoToneIcon />
               </IconButton>
@@ -77,6 +79,7 @@ const Packages = () => {
                   }
                   key={`delete-${values.row._id}`}
                   role="button"
+                  aria-label='DeleteForeverTwoToneIcon'
                 >
                   <DeleteForeverTwoToneIcon />
                 </IconButton>
@@ -151,6 +154,9 @@ const Packages = () => {
             key={`status-${params.row._id}`}
             mx={'auto'}
             label={value}
+            component={Button}
+            aria-label={value}
+            aria-describedby='status'
             sx={{
               minWidth: 90,
               backgroundColor: (theme) =>

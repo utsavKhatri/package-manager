@@ -64,7 +64,8 @@ export default function EditPackage({ packageData }) {
   return (
     <>
       <IconButton
-        aria-label="edit-trans-btn"
+        aria-describedby="edit-pack-btn"
+        aria-label="edit-pack-btn"
         role="button"
         onClick={() => handleClickOpen()}
       >
