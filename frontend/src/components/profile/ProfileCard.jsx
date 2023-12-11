@@ -5,6 +5,8 @@ import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
+import EditUser from '../users/EditUser';
+import ChangePassword from './ChangePassword';
 
 export default function ProfileCard({
   name,
@@ -12,6 +14,7 @@ export default function ProfileCard({
   lastLoginAt,
   isAdmin,
   selfRegister,
+  id,
 }) {
   return (
     <Card
@@ -49,13 +52,50 @@ export default function ProfileCard({
           justifyContent: 'space-between',
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography fontSize="xl" fontWeight="lg">
-            {name}
-          </Typography>
-          <Typography level="body-sm" fontWeight="lg" textColor="text.tertiary">
-            {email}
-          </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: {
+              xs: 'column',
+              sm: 'row',
+            },
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box>
+            <Typography fontSize="xl" fontWeight="lg">
+              {name}
+            </Typography>
+            <Typography
+              level="body-sm"
+              fontWeight="lg"
+              textColor="text.tertiary"
+            >
+              {email}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: {
+                xs: 'space-between',
+                sm: 'flex-end',
+              },
+              gap: 2,
+            }}
+          >
+            <Box>
+              <EditUser
+                userData={{ name, email, _id: id, isAdmin }}
+                updateProfile={true}
+              />
+            </Box>
+            <Box>
+              <ChangePassword />
+            </Box>
+          </Box>
         </Box>
         <Sheet
           sx={{
@@ -64,7 +104,7 @@ export default function ProfileCard({
             p: 1.5,
             my: 1.5,
             display: 'flex',
-            flexDirection:{
+            flexDirection: {
               xs: 'column',
               sm: 'row',
             },
@@ -84,7 +124,9 @@ export default function ProfileCard({
             <Typography level="body-xs" fontWeight="lg">
               Registration Type
             </Typography>
-            <Typography fontWeight="lg">{selfRegister ? 'Self Register' : 'Admin Invited'}</Typography>
+            <Typography fontWeight="lg">
+              {selfRegister ? 'Self Register' : 'Admin Invited'}
+            </Typography>
           </div>
           <div>
             <Typography level="body-xs" fontWeight="lg">

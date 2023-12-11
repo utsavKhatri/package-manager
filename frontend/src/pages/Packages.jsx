@@ -30,6 +30,8 @@ const Packages = () => {
     (state) => state.homePage
   );
 
+  const { role } = useSelector((state) => state.authPage);
+
   useEffect(() => {
     dispatch(fetchPackages());
   }, [dispatch, currentPage]);
@@ -54,15 +56,32 @@ const Packages = () => {
 
         return [
           <React.Fragment key={uniqueKey}>
-            <EditPackage packageData={values.row} />
-            <IconButton
-              aria-describedby="delete-package"
-              onClick={async() => await dispatch(handleDeletePackage(values.row._id))}
-              key={`delete-${values.row._id}`}
-              role="button"
-            >
-              <DeleteForeverTwoToneIcon />
-            </IconButton>
+            {role === 'superAdmin' ? (
+              <IconButton
+                aria-describedby="delete-package"
+                onClick={async () =>
+                  await dispatch(handleDeletePackage(values.row._id))
+                }
+                key={`delete-${values.row._id}`}
+                role="button"
+              >
+                <DeleteForeverTwoToneIcon />
+              </IconButton>
+            ) : (
+              <>
+                <EditPackage packageData={values.row} />
+                <IconButton
+                  aria-describedby="delete-package"
+                  onClick={async () =>
+                    await dispatch(handleDeletePackage(values.row._id))
+                  }
+                  key={`delete-${values.row._id}`}
+                  role="button"
+                >
+                  <DeleteForeverTwoToneIcon />
+                </IconButton>
+              </>
+            )}
           </React.Fragment>,
         ];
       },
@@ -133,7 +152,7 @@ const Packages = () => {
             mx={'auto'}
             label={value}
             sx={{
-              minWidth:90,
+              minWidth: 90,
               backgroundColor: (theme) =>
                 theme.palette.mode === 'dark' ? color[1] : color[0],
               color: 'black',
@@ -141,7 +160,7 @@ const Packages = () => {
                 backgroundColor: (theme) =>
                   theme.palette.mode === 'dark' ? color[0] : color[1],
               },
-              boxShadow: (theme)=> theme.shadows[1],
+              boxShadow: (theme) => theme.shadows[1],
             }}
             variant="filled"
             onClick={() =>
@@ -157,6 +176,7 @@ const Packages = () => {
           />,
         ];
       },
+      disableExport: true,
     },
   ];
 

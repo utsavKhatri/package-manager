@@ -6,6 +6,7 @@ import {
   setSignupLoading,
 } from '../slice/authSlice.js';
 import { URL } from '../../API/constant.js';
+import { setActiveTab } from '../slice/homeSlice.js';
 
 export const handleLogin = createAsyncThunk(
   'authPage/handleLogin',
@@ -19,13 +20,8 @@ export const handleLogin = createAsyncThunk(
       if (response?.token) {
         localStorage.setItem('user', JSON.stringify(response));
         await dispatch(setAuth(true));
-        if (response.role === 'businessUser') {
-          if (response.isExpired) {
-            await redirect('/update-package');
-            return fulfillWithValue(response);
-          }
-          await redirect('/users');
-        } else {
+
+        if (response.role) {
           await redirect('/');
         }
       }
@@ -51,7 +47,8 @@ export const handleSignup = createAsyncThunk(
 
 export const hadnleLogout = createAsyncThunk(
   'authPage/hadnleLogout',
-  async (_, { fulfillWithValue }) => {
+  async (_, { fulfillWithValue, dispatch }) => {
+    dispatch(setActiveTab('Home'));
     const response = await postCall(URL.LOGOUT, {}, true);
     return fulfillWithValue(response);
   }

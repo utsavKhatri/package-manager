@@ -18,27 +18,46 @@ const authenticateToken = async (req, res, next) => {
     }
 
     req.user = decoded;
-    req.user['isAdmin'] = userData.isAdmin;
+    if (userData.isSuperAdmin) {
+      req.user['isAdmin'] = true;
+      req.user['isSuperAdmin'] = true;
+    } else {
+      req.user['isAdmin'] = userData.isAdmin;
+    }
     return next();
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };
 
-const authorizeUser = (isAdmin) => (req, res, next) => {
-  if (isAdmin === 'superAdmin') {
+const authorizeUser =
+  (isAdmin, adminChecked = false) =>
+  (req, res, next) => {
+    if (req.originalUrl.includes('/edit')) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (
+      isAdmin === 'superAdmin' ||
+      req.originalUrl.includes('/delete') ||
+      req.originalUrl.includes('/getAll')
+    ) {
+      return next();
+    }
+
+    if (req.user.isAdmin !== isAdmin) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    req.adminChecked = adminChecked;
     return next();
-  }
-
-  if (req.user.isAdmin !== isAdmin) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  return next();
-};
+  };
 
 export const isAuthenticated = authenticateToken;
 export const isBusinessUser = [authenticateToken, authorizeUser(false)];
 export const isAdmin = [authenticateToken, authorizeUser(true)];
-export const isSuperAdmin = [authenticateToken, authorizeUser('superAdmin')];
+export const isSuperAdmin = [
+  authenticateToken,
+  authorizeUser('superAdmin', true),
+];

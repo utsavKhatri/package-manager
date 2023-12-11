@@ -129,6 +129,7 @@ export default function AddPackage() {
               label="Price"
               type="number"
               fullWidth
+              required
               variant="outlined"
             />
             <TextField
@@ -138,6 +139,7 @@ export default function AddPackage() {
               label="Duration"
               type="number"
               fullWidth
+              required
               variant="outlined"
             />
             <FormControl margin="dense" fullWidth>

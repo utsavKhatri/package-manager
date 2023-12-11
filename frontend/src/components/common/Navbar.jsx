@@ -9,29 +9,23 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { Stack } from '@mui/material';
+import { Stack, useMediaQuery } from '@mui/material';
 import SideDrawer from './SideDrawer';
 import { useColorScheme as useMaterialColorScheme } from '@mui/material/styles';
 import { useColorScheme as useJoyColorScheme } from '@mui/joy/styles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { hadnleLogout } from '../../redux/asyncThunk/auth';
+import { Logout } from '@mui/icons-material';
 
 export default function Navbar({ children }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const dispatch = useDispatch();
   const { mode, setMode } = useMaterialColorScheme();
   const { setMode: setJoyMode } = useJoyColorScheme();
+  const { role } = useSelector((state) => state.authPage);
+  const isMobile = useMediaQuery('(max-width: 600px)');
   const handleThemeToggle = () => {
     setMode(mode === 'dark' ? 'light' : 'dark');
     setJoyMode(mode === 'dark' ? 'light' : 'dark');
-  };
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
   };
 
   return (
@@ -40,7 +34,11 @@ export default function Navbar({ children }) {
         <Toolbar>
           <SideDrawer />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Package Manager
+            {role === 'superAdmin'
+              ? isMobile
+                ? 'Welcome Super Admin'
+                : 'Welcome Super Admin to Package Manager'
+              : 'Package Manager'}
           </Typography>
           <div>
             <IconButton
@@ -51,36 +49,14 @@ export default function Navbar({ children }) {
             >
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
+
             <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
+              onClick={() => dispatch(hadnleLogout())}
               color="inherit"
+              aria-label="logout"
             >
-              <AccountCircle />
+              <Logout />
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={() => dispatch(hadnleLogout())}>
-                Logout
-              </MenuItem>
-            </Menu>
           </div>
         </Toolbar>
       </AppBar>

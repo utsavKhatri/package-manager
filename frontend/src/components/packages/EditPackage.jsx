@@ -123,6 +123,7 @@ export default function EditPackage({ packageData }) {
               type="number"
               defaultValue={duration}
               fullWidth
+              required
               variant="outlined"
             />
             <FormControl margin="dense" fullWidth>

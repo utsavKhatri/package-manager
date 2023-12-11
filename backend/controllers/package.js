@@ -3,6 +3,9 @@ import { Package, validatePackage } from '../models/Package.js';
 import { User } from '../models/User.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
 import { transporter, stripe } from '../utils/index.js';
+import { config } from 'dotenv';
+
+config();
 
 export const createPackage = async (req, res) => {
   try {
@@ -31,11 +34,7 @@ export const createPackage = async (req, res) => {
 
     const stripePriceInfo = await stripe.prices.create({
       currency: 'inr',
-      unit_amount: price,
-      recurring: {
-        interval: 'day',
-        interval_count: duration,
-      },
+      unit_amount: price * 100,
       product_data: {
         name: name,
       },
@@ -150,6 +149,17 @@ export const updatePackage = async (req, res) => {
     }
 
     if (status !== null || status !== undefined) {
+      // find any relation exits in userPackageMap
+      const mapingExists = await UserPackageMap.find({
+        package: packageId,
+      });
+
+      if (mapingExists.length > 0) {
+        return res.status(400).json({
+          message: 'Package status cannot be changed as it is in use',
+        });
+      }
+
       isExistPackage.status = status;
     }
 
@@ -195,6 +205,10 @@ export const deletePackages = async (req, res) => {
       return res.status(400).json({ message: 'Package is in use' });
     }
 
+    await stripe.prices.update(packageExists.stripePriceId, {
+      active: false,
+    });
+
     await Package.findByIdAndDelete(packageId);
 
     return res.status(200).json({ message: 'Package deleted successfully' });
@@ -203,192 +217,6 @@ export const deletePackages = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
-// export const assignPackageToUser = async (req, res) => {
-//   try {
-//     const { userId, packageId } = req.body;
-//     console.log(userId, packageId, 'userId, packageId');
-//     if (
-//       !userId ||
-//       !packageId ||
-//       !mongoose.Types.ObjectId.isValid(packageId) ||
-//       !mongoose.Types.ObjectId.isValid(userId)
-//     ) {
-//       return res
-//         .status(400)
-//         .json({ message: 'User ID and Package ID are required' });
-//     }
-
-//     let userExists = await User.findById(userId);
-
-//     if (!userExists) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-
-//     if (req.user.isAdmin === false && userExists.isAdmin === true) {
-//       return res
-//         .status(403)
-//         .json({ message: 'Unauthorized to update this user package' });
-//     }
-
-//     const packageExists = await Package.findById(packageId);
-
-//     if (!packageExists) {
-//       return res.status(404).json({ message: 'Package not found' });
-//     }
-
-//     // check relation already exists in userPackageMap
-//     const mapingExists = await UserPackageMap.findOne({
-//       user: userId,
-//       package: packageId,
-//     });
-
-//     if (mapingExists) {
-//       // update userPackageMap data
-//       const updatedPackage = await UserPackageMap.findByIdAndUpdate(
-//         mapingExists._id,
-//         {
-//           package: packageId,
-//           enrolledAt: new Date(),
-//           expiredAt: new Date(
-//             new Date().setDate(new Date().getDate() + packageExists.duration)
-//           ),
-//           isExpired: false,
-//         }
-//       )
-//         .populate('user package')
-//         .exec();
-
-//       userExists.package = updatedPackage._id;
-//       await userExists.save();
-//       const mailOptions = {
-//         from: 'package-manager@gmail.com',
-//         to: updatedPackage.user.email,
-//         subject: 'Package Update Notification',
-//         html: `
-//               <body style="font-family: Arial, sans-serif; padding: 20px;">
-//                 <h2>Hello, ${updatedPackage.user.name}!</h2>
-//                 <p>Your package details have been updated successfully.</p>
-//                 <h3>Updated Package Information:</h3>
-//                 <ul>
-//                   <li><strong>Package Name:</strong> ${
-//                     updatedPackage.package.name
-//                   }</li>
-//                   <li><strong>Package Price:</strong> ${
-//                     updatedPackage.package.price
-//                   }</li>
-//                   <li><strong>Package Duration:</strong> ${
-//                     updatedPackage.package.duration
-//                   } days</li>
-//                   <li><strong>Updated Date:</strong> ${new Date().toDateString()}</li>
-//                   <li><strong>Expiration Date:</strong> ${new Date(
-//                     new Date().setDate(
-//                       new Date().getDate() + updatedPackage.package.duration
-//                     )
-//                   ).toDateString()}</li>
-//                 </ul>
-//                 <p>Your package information has been updated. Please review the changes made.</p>
-//                 <br />
-//                 <p>Best regards,</p>
-//                 <p>Your App Team</p>
-//               </body>
-//             `,
-//       };
-
-//       transporter.sendMail(mailOptions, (error, info) => {
-//         if (error) {
-//           console.log('Error occurred while sending email: ', error.message);
-//         } else {
-//           console.log('Email sent: ' + info.response);
-//         }
-//       });
-
-//       const session = await stripe.checkout.sessions.create({
-//         mode: 'subscription',
-//         allow_promotion_codes: true,
-//         line_items: [
-//           {
-//             price: packageExists.stripe_p_id,
-//             quantity: 1,
-//           },
-//         ],
-//         success_url: 'http://localhost:5173/users',
-//         cancel_url: 'http://localhost:5173/update-package',
-//       });
-
-//       return res.redirect(303, session.url);
-//     } else {
-//       const newMapingData = await UserPackageMap.create({
-//         user: userId,
-//         package: packageId,
-//         enrolledAt: new Date(),
-//         expiredAt: new Date(
-//           new Date().setDate(new Date().getDate() + packageExists.duration)
-//         ),
-//         isExpired: false,
-//       });
-
-//       userExists.package = newMapingData._id;
-//       await userExists.save();
-
-//       // Inside your logic where the package is assigned to the user
-//       const mailOptions = {
-//         from: 'package-manager@gmail.com',
-//         to: userExists.email,
-//         subject: 'Package Assigned Successfully!',
-//         html: `
-//           <body style="font-family: Arial, sans-serif; padding: 20px;">
-//             <h2>Hello, ${userExists.name}!</h2>
-//             <p>Your package has been assigned successfully.</p>
-//             <h3>Package Details:</h3>
-//             <ul>
-//               <li><strong>Package Name:</strong> ${packageExists.name}</li>
-//               <li><strong>Package Price:</strong> ${packageExists.price}</li>
-//               <li><strong>Package Duration:</strong> ${
-//                 packageExists.duration
-//               } days</li>
-//               <li><strong>Enrolled Date:</strong> ${new Date().toDateString()}</li>
-//               <li><strong>Expiration Date:</strong> ${new Date(
-//                 new Date().setDate(
-//                   new Date().getDate() + packageExists.duration
-//                 )
-//               ).toDateString()}</li>
-//             </ul>
-//             <p>Please make the most out of our platform with your newly assigned package!</p>
-//             <br />
-//             <p>Best regards,</p>
-//             <p>Your App Team</p>
-//           </body>
-//         `,
-//       };
-
-//       transporter.sendMail(mailOptions, (error, info) => {
-//         if (error) {
-//           console.log('Error occurred while sending email: ', error.message);
-//         } else {
-//           console.log('Email sent: ' + info.response);
-//         }
-//       });
-
-//       const session = await stripe.checkout.sessions.create({
-//         mode: 'subscription',
-//         allow_promotion_codes: true,
-//         line_items: [
-//           {
-//             price: packageExists.stripe_p_id,
-//             quantity: 1,
-//           },
-//         ],
-//         success_url: 'http://localhost:5173/users',
-//         cancel_url: 'http://localhost:5173/update-package',
-//       });
-
-//       return res.redirect(303, session.url);
-//     }
-//   } catch (error) {
-//     return res.status(500).json({ message: error.message });
-//   }
-// };
 
 export const assignPackageToUser = async (req, res) => {
   try {
@@ -418,7 +246,7 @@ export const assignPackageToUser = async (req, res) => {
     }
 
     const packageExists = await Package.findById(packageId);
-    console.log(packageExists);
+
     if (!packageExists || !packageExists.stripe_p_id) {
       return res.status(404).json({ message: 'Invalid package details' });
     }
@@ -434,23 +262,20 @@ export const assignPackageToUser = async (req, res) => {
     };
 
     let updatedPackage;
-    let isNewMapping = false;
 
-    const existingMapping = await UserPackageMap.findOne({
+    const existingMapping = await UserPackageMap.find({
       user: userId,
-      package: packageId,
     });
 
-    if (existingMapping) {
-      updatedPackage = await UserPackageMap.updateOne(
-        { _id: existingMapping._id },
-        { $set: updatedData }
-      ).populate('user package');
-      console.log(updatedPackage, 'update called');
+    if (existingMapping.length > 0) {
+      await UserPackageMap.deleteMany({
+        _id: {
+          $in: existingMapping.map((mapping) => mapping._id),
+        },
+      });
+      updatedPackage = await UserPackageMap.create(userPackageMapData);
     } else {
       updatedPackage = await UserPackageMap.create(userPackageMapData);
-      isNewMapping = true;
-      console.log('create called');
     }
 
     await User.findByIdAndUpdate(userId, {
@@ -458,54 +283,96 @@ export const assignPackageToUser = async (req, res) => {
     });
 
     const mailOptions = {
-      from: 'package-manager@gmail.com',
+      from: process.env.GMAIL_USERNAME,
       to: userExists.email,
       subject: 'Package Assigned Successfully!',
       html: `
-          <body style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>Hello, ${userExists.name}!</h2>
-            <p>Your package has been assigned successfully.</p>
-            <h3>Package Details:</h3>
-            <ul>
-              <li><strong>Package Name:</strong> ${packageExists.name}</li>
-              <li><strong>Package Price:</strong> ${packageExists.price}</li>
-              <li><strong>Package Duration:</strong> ${
-                packageExists.duration
-              } days</li>
-              <li><strong>Enrolled Date:</strong> ${new Date().toDateString()}</li>
-              <li><strong>Expiration Date:</strong> ${new Date(
-                new Date().setDate(
-                  new Date().getDate() + packageExists.duration
-                )
-              ).toDateString()}</li>
-            </ul>
-            <p>Please make the most out of our platform with your newly assigned package!</p>
-            <br />
-            <p>Best regards,</p>
-            <p>Your App Team</p>
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f5f5f5;
+                color: #333333;
+              }
+              h2 {
+                color: #007bff;
+              }
+              ul {
+                list-style: none;
+                padding: 0;
+              }
+              li {
+                margin-bottom: 10px;
+              }
+              @media (prefers-color-scheme: dark) {
+                body {
+                  background-color: #333333;
+                  color: #f5f5f5;
+                }
+                h2 {
+                  color: #00ff00;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div style="max-width: 600px; margin: auto;">
+              <h2>Hello, ${userExists.name}!</h2>
+              <p>Your package has been assigned successfully.</p>
+              <h3>Package Details:</h3>
+              <ul>
+                <li><strong>Package Name:</strong> ${packageExists.name}</li>
+                <li><strong>Package Price:</strong> ${packageExists.price}</li>
+                <li><strong>Package Duration:</strong> ${
+                  packageExists.duration
+                } days</li>
+                <li><strong>Enrolled Date:</strong> ${new Date().toDateString()}</li>
+                <li><strong>Expiration Date:</strong> ${new Date(
+                  new Date().setDate(
+                    new Date().getDate() + packageExists.duration
+                  )
+                ).toDateString()}</li>
+              </ul>
+              <p>Please make the most out of our platform with your newly assigned package!</p>
+              <br />
+              <p>Best regards,</p>
+              <p>Your App Team</p>
+            </div>
           </body>
-        `,
+        </html>
+      `,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log('Error occurred while sending email: ', error.message);
+        console.log(error.message);
       } else {
-        console.log('Email sent: ' + info.response);
+        console.log('Email sent');
       }
     });
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: 'payment',
       allow_promotion_codes: true,
+      customer_email: userExists.email,
+      metadata: {
+        userId: userId,
+        packageId: packageId,
+      },
       line_items: [
         {
           price: packageExists.stripe_p_id,
           quantity: 1,
         },
       ],
-      success_url: 'http://localhost:5173/users?success=paymentSuccess',
-      cancel_url: 'http://localhost:5173/update-package?error=paymentFailed',
+      invoice_creation: {
+        enabled: true,
+      },
+      success_url: `${process.env.SUCCESS_URL}?success=paymentSuccess`,
+      cancel_url: `${process.env.CANCEL_URL}?error=paymentFailed`,
     });
 
     return res.json({

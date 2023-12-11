@@ -5,11 +5,6 @@ config();
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET);
 
-/**
- * Generates a strong password with a specified length and character set.
- *
- * @return {string} The generated strong password.
- */
 export const generateStrongPassword = () => {
   const length = 8;
   const charset =
@@ -30,5 +25,13 @@ export const SMTPcreds = {
     pass: 'ab248f64487cec',
   },
 };
+
+// export const SMTPcreds = {
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.GMAIL_USERNAME,
+//     pass: process.env.GMAIL_PASS,
+//   },
+// };
 
 export const transporter = nodemailer.createTransport(SMTPcreds);

@@ -21,6 +21,7 @@ const initialState = {
   dashboardLoading: false,
   dashboardData: null,
 };
+
 export const homeSlice = createSlice({
   name: 'homePage',
   initialState,
@@ -54,13 +55,12 @@ export const homeSlice = createSlice({
     },
     setDashboardLoading: (state, action) => {
       state.dashboardLoading = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPackages.fulfilled, (state, action) => {
         state.packageLoading = false;
-        console.log(action.payload);
         state.currentPage = action.payload.currentPage;
         state.totalPage = action.payload.totalPage;
         state.totalCount = action.payload.totalCount;
@@ -87,13 +87,15 @@ export const homeSlice = createSlice({
       })
       .addCase(handleEditPackage.rejected, (state, action) => {
         state.editPackageLoading = false;
-      }).addCase(fetchDashboard.fulfilled, (state, action) => {
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
         state.dashboardLoading = false;
         state.dashboardData = action.payload;
-      }).addCase(fetchDashboard.rejected, (state, action) => {
+      })
+      .addCase(fetchDashboard.rejected, (state, action) => {
         state.dashboardLoading = false;
         state.dashboardData = null;
-      })
+      });
   },
 });
 
@@ -107,7 +109,7 @@ export const {
   setPageSize,
   setCreatePackageLoading,
   setEditPackageLoading,
-  setDashboardLoading
+  setDashboardLoading,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

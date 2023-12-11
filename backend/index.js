@@ -18,17 +18,21 @@ import paymentRouter from './routes/payment.js';
 dotenv.config();
 const app = express();
 
-// Middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  express.json({
+    verify: function (req, res, buf) {
+      if (req.originalUrl.startsWith('/webhook')) {
+        req.rawBody = buf.toString();
+      }
+    },
+  })
+);
 app.use(cors());
 
 // Connect to MongoDB
 mongoose
-  .connect('mongodb://localhost:27017/pack-manager', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect('mongodb://localhost:27017/pack-manager')
   .then(() => console.log('Connected to MongoDB'))
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error);
@@ -67,7 +71,6 @@ server.on('error', (error) => {
 
 cron.schedule('0 0 * * *', async () => {
   const upMapingData = await UserPackageMap.find({});
-
   if (upMapingData && upMapingData.length > 0) {
     for (let item of upMapingData) {
       if (item.expiredAt < Date.now()) {
@@ -94,8 +97,9 @@ server.listen(PORT, async () => {
         email: 'superadmin@gmail.com',
         name: 'Super Admin',
         password:
-          '$2a$10$xKCSs0/cxJI5iLtrJrfNvO3bS0G4OO8fjEVu23bKUStKGV7nAyloi',
+          '$2a$10$uO03EmrTj8wFcjq2Ujt4l.1F9EPjlOT6/JMF9d.4hG9DpFmIHKSnO',
         isSuperAdmin: true,
+        isAdmin: true,
       });
 
       superAdminId = superAdmin._id;

@@ -18,6 +18,6 @@ userRouter.post('/', isAdmin, createUser);
 userRouter.get('/', isAuthenticated, getUsers);
 userRouter.get('/:id', isAuthenticated, getUser);
 userRouter.put('/:id', isAuthenticated, updateUser);
-userRouter.delete('/:id', isAuthenticated, deleteUser);
+userRouter.delete('/:id', isSuperAdmin, deleteUser);
 
 export default userRouter;

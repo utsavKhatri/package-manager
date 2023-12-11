@@ -1,7 +1,7 @@
 import React, { useEffect, lazy, Suspense } from 'react';
-import Navbar from '../components/common/Navbar';
 import {
   Box,
+  Chip,
   Container,
   IconButton,
   Pagination,
@@ -9,13 +9,18 @@ import {
   Zoom,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUsers, handleDeleteUser } from '../redux/asyncThunk/users';
+import {
+  fetchUsers,
+  handleDeleteUser,
+  handleEditUser,
+} from '../redux/asyncThunk/users';
 import { setCurrentPage } from '../redux/slice/userSlice';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-
-import Loader from '../components/common/Loader';
-import { useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useLocation } from 'react-router-dom';
+
+import Navbar from '../components/common/Navbar';
+import Loader from '../components/common/Loader';
 
 const EditUser = lazy(() => import('../components/users/EditUser'));
 const AddUser = lazy(() => import('../components/users/AddUser'));
@@ -36,6 +41,7 @@ const UsersPage = () => {
 
     if (successMessage) {
       toast.success(successMessage, { duration: 5000 });
+      searchParams.delete('success');
     }
     dispatch(fetchUsers());
   }, [dispatch, currentPage, location.search]);
@@ -49,32 +55,6 @@ const UsersPage = () => {
   }
 
   const columns = [
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      flex: 1,
-      cellClassName: 'actions',
-      getActions: (values) => {
-        const uniqueKey = `action-${values.row._id}`;
-
-        return [
-          <React.Fragment key={uniqueKey}>
-            <EditUser userData={values.row} />
-            <IconButton
-              aria-describedby="delete-users"
-              onClick={() => dispatch(handleDeleteUser(values.row._id))}
-              key={`delete-${values.row._id}`}
-              role="button"
-            >
-              <DeleteForeverTwoToneIcon />
-            </IconButton>
-          </React.Fragment>,
-        ];
-      },
-      minWidth: 100,
-      disableExport: true,
-    },
     {
       field: 'name',
       headerName: 'Name',
@@ -137,6 +117,208 @@ const UsersPage = () => {
     },
   ];
 
+  if (role === 'admin' || role === 'businessUser') {
+    columns.push({
+      field: 'status',
+      headerName: 'Status',
+      editable: false,
+      flex: 1,
+      type: 'actions',
+      minWidth: 100,
+      getActions: (params) => {
+        const value = params.row.isActive ? 'Active' : 'Inactive';
+        const color = [
+          params.row.isActive ? '#d1ffc9' : '#ffc9c9',
+          params.row.isActive ? '#8ce065' : '#e06565',
+        ];
+        return [
+          <Chip
+            key={`status-${params.row._id}`}
+            mx={'auto'}
+            label={value}
+            sx={{
+              minWidth: 90,
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'dark' ? color[1] : color[0],
+              color: 'black',
+              '&:hover': {
+                backgroundColor: (theme) =>
+                  theme.palette.mode === 'dark' ? color[0] : color[1],
+              },
+              boxShadow: (theme) => theme.shadows[1],
+            }}
+            variant="filled"
+            onClick={() =>
+              dispatch(
+                handleEditUser({
+                  id: params.row._id,
+                  data: {
+                    isActive: params.row.isActive === true ? false : true,
+                  },
+                })
+              )
+            }
+          />,
+        ];
+      },
+      disableExport: true,
+    });
+    columns.unshift({
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      cellClassName: 'actions',
+      getActions: (values) => {
+        const uniqueKey = `action-${values.row._id}`;
+
+        return [<EditUser userData={values.row} key={uniqueKey} />];
+      },
+      minWidth: 100,
+      disableExport: true,
+    });
+  }
+
+  if (role === 'superAdmin') {
+    columns.unshift({
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      cellClassName: 'actions',
+      getActions: (values) => {
+        return [
+          <IconButton
+            aria-describedby="delete-users"
+            onClick={() => dispatch(handleDeleteUser(values.row._id))}
+            key={`delete-${values.row._id}`}
+            role="button"
+          >
+            <DeleteForeverTwoToneIcon />
+          </IconButton>,
+        ];
+      },
+      minWidth: 100,
+      disableExport: true,
+    });
+
+    const addArray = [
+      {
+        field: 'package',
+        headerName: 'Package (name/status)',
+        editable: false,
+        flex: 1,
+        minWidth: 170,
+        valueGetter: (params) => {
+          return params.row.package
+            ? `${params.row.package.package.name} | ${
+                params.row.package.isExpired ? 'Expired' : 'Active'
+              }`
+            : '-';
+        },
+      },
+      {
+        field: 'status',
+        headerName: 'Status',
+        editable: false,
+        flex: 1,
+        type: 'actions',
+        minWidth: 100,
+        getActions: (params) => {
+          const value = params.row.isActive ? 'Active' : 'Inactive';
+          const color = [
+            params.row.isActive ? '#d1ffc9' : '#ffc9c9',
+            params.row.isActive ? '#8ce065' : '#e06565',
+          ];
+          return [
+            <Chip
+              key={`status-${params.row._id}`}
+              mx={'auto'}
+              label={value}
+              sx={{
+                minWidth: 90,
+                backgroundColor: (theme) =>
+                  theme.palette.mode === 'dark' ? color[1] : color[0],
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === 'dark' ? color[0] : color[1],
+                },
+                boxShadow: (theme) => theme.shadows[1],
+              }}
+              variant="filled"
+              onClick={() =>
+                dispatch(
+                  handleEditUser({
+                    id: params.row._id,
+                    data: {
+                      isActive: params.row.isActive === true ? false : true,
+                    },
+                  })
+                )
+              }
+            />,
+          ];
+        },
+        disableExport: true,
+      },
+      {
+        field: 'createdBy',
+        headerName: 'Created By',
+        editable: false,
+        flex: 1,
+        minWidth: 125,
+        renderCell: (params) => {
+          return (
+            <Tooltip
+              title={params.row.createdBy ? params.row.createdBy.name : '-'}
+              TransitionComponent={Zoom}
+              arrow
+            >
+              <span>
+                {params.row.createdBy ? params.row.createdBy.name : '-'}
+              </span>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        field: 'updatedBy',
+        headerName: 'Updated By',
+        editable: false,
+        flex: 1,
+        minWidth: 125,
+        renderCell: (params) => {
+          return (
+            <Tooltip
+              title={params.row.updatedBy ? params.row.updatedBy.name : '-'}
+              TransitionComponent={Zoom}
+              arrow
+            >
+              <span>
+                {params.row.updatedBy ? params.row.updatedBy.name : '-'}
+              </span>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        field: 'updatedAt',
+        headerName: 'Updated At',
+        editable: false,
+        flex: 1,
+        minWidth: 125,
+        valueGetter: (params) => {
+          return params.row.updatedAt
+            ? new Date(params.row.updatedAt).toLocaleString()
+            : '-';
+        },
+      },
+    ];
+
+    columns.push(...addArray);
+  }
+
   return (
     <Navbar>
       <Suspense fallback={<Loader />}>
@@ -160,7 +342,7 @@ const UsersPage = () => {
               }}
             >
               <h1>Users</h1>
-              {role === 'admin' && <AddUser />}
+              {role !== 'businessUser' && <AddUser />}
             </Box>
             <CustomTable
               data={users}

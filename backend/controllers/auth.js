@@ -38,23 +38,26 @@ export const login = async (req, res) => {
       id: user._id,
     };
 
-    if (user.isAdmin === false) {
+    if (user.isAdmin) {
+      userData.role = user.isSuperAdmin ? 'superAdmin' : 'admin';
+    } else {
       const userPackageMap = await UserPackageMap.findOne({ user: user._id });
 
       if (userPackageMap) {
-        if (isPast(new Date(userPackageMap.expiredAt))) {
-
+        if (userPackageMap.isExpired) {
           userData.role = 'businessUser';
           userData.isExpired = true;
-          userPackageMap.isExpired = true;
-          await userPackageMap.save();
         } else {
-      
-          userData.role = 'businessUser';
+          if (isPast(new Date(userPackageMap.expiredAt))) {
+            userPackageMap.isExpired = true;
+            await userPackageMap.save();
+            userData.role = 'businessUser';
+            userData.isExpired = true;
+          } else {
+            userData.role = 'businessUser';
+          }
         }
       }
-    } else {
-      userData.role = 'admin';
     }
 
     return res.status(200).json(userData);

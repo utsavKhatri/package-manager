@@ -7,6 +7,7 @@ import {
   setUsersLoading,
 } from '../slice/userSlice';
 import { URL } from '../../API/constant';
+import { fetchProfile } from './profile';
 export const fetchUsers = createAsyncThunk(
   'homePage/fetchUsers',
   async (_, { rejectWithValue, fulfillWithValue, dispatch, getState }) => {
@@ -41,11 +42,19 @@ export const handleCreateUser = createAsyncThunk(
 );
 export const handleEditUser = createAsyncThunk(
   'homePage/handleEditUser',
-  async ({ id, data }, { rejectWithValue, fulfillWithValue, dispatch }) => {
+  async (
+    { id, data, updateProfile },
+    { rejectWithValue, fulfillWithValue, dispatch }
+  ) => {
     try {
       dispatch(setEditUserLoading(true));
       const response = await putCall(`${URL.EDIT_USER}${id}`, data, true);
-      dispatch(fetchUsers());
+      if (updateProfile) {
+        dispatch(fetchProfile());
+      } else {
+        dispatch(fetchUsers());
+      }
+
       return fulfillWithValue(response);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error occurred');

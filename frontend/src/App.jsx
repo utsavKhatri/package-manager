@@ -2,7 +2,7 @@ import { CssBaseline } from '@mui/material';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import Loader from './components/common/Loader.jsx';
 import {
   experimental_extendTheme as materialExtendTheme,
@@ -12,20 +12,22 @@ import {
 import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy/styles';
 import PrivateRoute from './API/PrivateRoute.jsx';
 
-import HomePage from './pages/HomePage.jsx';
-import LoginPage from './pages/Login.jsx';
-import SignUpPage from './pages/Signup.jsx';
-import Packages from './pages/Packages.jsx';
-import ProfilePage from './pages/ProfilePage.jsx';
-import UsersPage from './pages/UsersPage.jsx';
+const HomePage = lazy(() => import('./pages/HomePage.jsx'));
+const LoginPage = lazy(() => import('./pages/Login.jsx'));
+const SignUpPage = lazy(() => import('./pages/Signup.jsx'));
+const Packages = lazy(() => import('./pages/Packages.jsx'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'));
+const UsersPage = lazy(() => import('./pages/UsersPage.jsx'));
+const PayWallPage = lazy(() => import('./pages/PayWallPage.jsx'));
 
 import './App.css';
-import PayWallPage from './pages/PayWallPage.jsx';
+import { useSelector } from 'react-redux';
 
 const materialTheme = materialExtendTheme();
 
 function App() {
   const [mounted, setMounted] = useState(false);
+  const { role } = useSelector((state) => state.authPage);
 
   useEffect(() => {
     setMounted(true);
@@ -33,6 +35,12 @@ function App() {
   if (!mounted) {
     return null;
   }
+
+  const allowedPaths = {
+    businessUser: ['/', '/profile', '/update-package'],
+    admin: ['/', '/users', '/profile', '/packages'],
+    superAdmin: ['/', '/packages'],
+  };
   return (
     <Suspense fallback={<Loader />}>
       <MaterialCssVarsProvider
@@ -44,8 +52,15 @@ function App() {
           <Toaster position="top-center" reverseOrder={false} />
           <BrowserRouter>
             <Routes>
-              <Route element={<PrivateRoute />}>
-                <Route path="/" element={<HomePage />} />
+              <Route
+                element={
+                  <PrivateRoute allowedPaths={allowedPaths[role]} role={role} />
+                }
+              >
+                <Route
+                  path="/"
+                  element={role !== 'admin' ? <UsersPage /> : <HomePage />}
+                />
                 <Route path="/packages" element={<Packages />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/users" element={<UsersPage />} />

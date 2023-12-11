@@ -7,9 +7,7 @@ import Divider from '@mui/joy/Divider';
 import Typography from '@mui/joy/Typography';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { currencyFormat } from '../../utils';
-import { useDispatch, useSelector } from 'react-redux';
-import { packageAssign } from '../../redux/asyncThunk/profile';
-import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { List, ListItem, ListItemDecorator } from '@mui/joy';
 import Check from '@mui/icons-material/Check';
@@ -22,27 +20,9 @@ export default function ProfilePlanCard({
   expiredAt,
   enrolledAt,
 }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { assignPackageLoading } = useSelector((state) => state.profilePage);
-
-  const hadnlePackageAssign = async () => {
-    try {
-      const data = {
-        userId: JSON.parse(localStorage.getItem('user'))?.id,
-        packageId: id,
-      };
-
-      if (!data.userId) {
-        return toast.error('Please login to continue');
-      }
-
-      return dispatch(packageAssign({ redirect: (e) => navigate(e), data }));
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const chipText = (price) => {
     const thresholds = [
@@ -103,7 +83,7 @@ export default function ProfilePlanCard({
           color="neutral"
           endDecorator={<KeyboardArrowRight />}
           disabled={assignPackageLoading}
-          onClick={hadnlePackageAssign}
+          onClick={()=>navigate(`/update-package?self=true&packageId=${id}`)}
         >
           Update Plan
         </Button>

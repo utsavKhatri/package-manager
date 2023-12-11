@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProfile, packageAssign } from '../asyncThunk/profile';
+import { fetchProfile, handleChangePassword, packageAssign } from '../asyncThunk/profile';
 
 const initialState = {
   profileData: null,
   profileLoading: false,
   assignPackageLoading: false,
+  changePasswordLoading: false,
 };
 
 export const profileSlice = createSlice({
@@ -20,11 +21,13 @@ export const profileSlice = createSlice({
     setAssignPackageLoading: (state, action) => {
       state.assignPackageLoading = action.payload;
     },
+    setChangePasswordLoading: (state, action) => {
+      state.changePasswordLoading = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProfile.fulfilled, (state, action) => {
-        console.log('profile a', action.payload);
         state.profileData = action.payload;
         state.profileLoading = false;
       })
@@ -37,11 +40,15 @@ export const profileSlice = createSlice({
       })
       .addCase(packageAssign.rejected, (state, action) => {
         state.assignPackageLoading = false;
-      });
+      }).addCase(handleChangePassword.fulfilled, (state, action) => {
+        state.changePasswordLoading = false;
+      }).addCase(handleChangePassword.rejected, (state, action) => {
+        state.changePasswordLoading = false;
+      })
   },
 });
 
-export const { setProfileData, setProfileLoading, setAssignPackageLoading } =
+export const { setProfileData, setProfileLoading, setAssignPackageLoading, setChangePasswordLoading } =
   profileSlice.actions;
 
 export default profileSlice.reducer;

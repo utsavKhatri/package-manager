@@ -1,4 +1,5 @@
-import { stripe } from '../utils/index.js';
+import { User } from '../models/User.js';
+import { stripe, transporter } from '../utils/index.js';
 import { config } from 'dotenv';
 
 config();
@@ -6,12 +7,9 @@ config();
 export const wenhooks = async (req, res) => {
   let data;
   let eventType;
-  // Check if webhook signing is configured.
   if (process.env.STRIPE_WEBHOOK_SECRET) {
-    // Retrieve the event by verifying the signature using the raw body and secret.
     let event;
     let signature = req.headers['stripe-signature'];
-
     try {
       event = stripe.webhooks.constructEvent(
         req.rawBody,
@@ -19,22 +17,83 @@ export const wenhooks = async (req, res) => {
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`);
+      console.log('🚀 ~ file: payment.js:26 ~ wenhooks ~ err:', err.message);
       return res.sendStatus(400);
     }
     // Extract the object from the event.
     data = event.data;
     eventType = event.type;
   } else {
-    // Webhook signing is recommended, but if the secret is not configured in `config.js`,
-    // retrieve the event data directly from the request body.
     data = req.body.data;
     eventType = req.body.type;
   }
+  console.log('\x1b[38;5;153m%s\x1b[0m', `event type: -> ${req.body.type}`);
 
   if (eventType === 'checkout.session.completed') {
-    console.log(data);
     console.log(`🔔  Payment received!`);
+  }
+
+  if (eventType === 'invoice.payment_succeeded') {
+    console.log(`🔔  Payment received!`);
+    const userData = await User.findOne({ email: data.object.customer_email });
+    if (userData) {
+      // make look email template for sending invoice pdf link via nodemailer
+      const mailOptions = {
+        from: 'package-manager@gmail.com',
+        to: userData.email,
+        subject: 'Invoice',
+        text: 'Please find the invoice attached.',
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                /* Base styles for the email */
+                body {
+                  font-family: Arial, sans-serif;
+                }
+                .container {
+                  max-width: 600px;
+                  margin: auto;
+                  padding: 20px;
+                  background-color: #ffffff;
+                  color: #000000;
+                }
+                h1 {
+                  color: #007bff;
+                }
+                /* Dark mode styles */
+                @media (prefers-color-scheme: dark) {
+                  body,
+                  .container {
+                    background-color: #000000;
+                    color: #ffffff;
+                  }
+                  h1 {
+                    color: #00ff00;
+                  }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <h1>Hello ${userData.name},</h1>
+                <p>Your invoice is ready. Please find it <a href="${data.object.invoice_pdf}" style="color: #007bff;">here</a>.</p>
+                <p>Thank you!</p>
+              </div>
+            </body>
+          </html>
+        `,
+      };
+      // send email
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error.message);
+        } else {
+          console.log('Email sent');
+        }
+      });
+    }
   }
 
   res.sendStatus(200);
@@ -58,7 +117,7 @@ export const createCheckout = async (req, res) => {
   // For full details see https://stripe.com/docs/api/checkout/sessions/create
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: 'payment',
       allow_promotion_codes: true,
       line_items: [
         {
@@ -66,7 +125,6 @@ export const createCheckout = async (req, res) => {
           quantity: 1,
         },
       ],
-      // ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
       success_url: 'http://localhost:5173/users',
       cancel_url: 'http://localhost:5173/update-package',
     });
@@ -81,3 +139,4 @@ export const createCheckout = async (req, res) => {
     });
   }
 };
+//4242424242424242

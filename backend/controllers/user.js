@@ -37,7 +37,7 @@ export const createUser = async (req, res) => {
 
     // Send email with user credentials
     const mailOptions = {
-      from: 'package-manager@gmail.com',
+      from: 'packagemanager777@gmail.com',
       to: email,
       subject: 'Welcome to Our Platform!',
       html: `
@@ -56,9 +56,9 @@ export const createUser = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log('Error occurred while sending email:', error);
+        console.log(error.message);
       } else {
-        console.log('Email sent:', info.response);
+        console.log('Email sent');
       }
     });
     return res
@@ -92,6 +92,15 @@ export const updateUser = async (req, res) => {
     if (email) {
       isExist.email = email;
     }
+
+    if (isExist.id === req.user.id) {
+      if (isExist.isActive === true && isActive === false) {
+        return res
+          .status(400)
+          .json({ message: 'You cannot deactivate your account' });
+      }
+    }
+
     if (isActive !== null || isActive !== undefined) {
       isExist.isActive = isActive;
     }
@@ -221,22 +230,31 @@ export const getUsers = async (req, res) => {
       skip: (page - 1) * pageSize,
     };
 
+    let populateArray = [
+      {
+        path: 'package',
+      },
+      {
+        path: 'package',
+        populate: {
+          path: 'package',
+        },
+      },
+      {
+        path: 'createdBy',
+        select: 'name email',
+      },
+    ];
+
+    if (req.user.isSuperAdmin) {
+      populateArray.push({
+        path: 'updatedBy',
+        select: 'name email',
+      });
+    }
+
     const users = await User.find(query)
-      .populate([
-        {
-          path: 'package',
-        },
-        {
-          path: 'package',
-          populate: {
-            path: 'package',
-          },
-        },
-        {
-          path: 'createdBy',
-          select: 'name email',
-        },
-      ])
+      .populate(populateArray)
       .limit(options.limit)
       .skip(options.skip);
 

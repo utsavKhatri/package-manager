@@ -16,7 +16,7 @@ import { FormControlLabel, Switch } from '@mui/material';
 import { useState } from 'react';
 import { handleEditUser } from '../../redux/asyncThunk/users';
 
-export default function EditUser({ userData }) {
+export default function EditUser({ userData, updateProfile = false }) {
   const { _id, name, email, isAdmin } = userData;
 
   const dispatch = useDispatch();
@@ -47,6 +47,7 @@ export default function EditUser({ userData }) {
             email,
             isAdmin,
           },
+          updateProfile,
         })
       );
 
@@ -85,7 +86,7 @@ export default function EditUser({ userData }) {
         aria-labelledby="responsive-dialog-title"
       >
         <DialogTitle id="responsive-dialog-title" variant="h6">
-          Update Users
+          Update {updateProfile ? 'Profile' : 'User'}
         </DialogTitle>
         <Box component={'form'} onSubmit={hadnleEditPackges} marginTop={0}>
           <DialogContent
@@ -112,6 +113,7 @@ export default function EditUser({ userData }) {
               type="email"
               defaultValue={email}
               fullWidth
+              required
               variant="outlined"
             />
             <FormControl margin="dense" fullWidth>

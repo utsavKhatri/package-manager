@@ -12,7 +12,14 @@ import { packageAssign } from '../../redux/asyncThunk/profile';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-export default function PlanCard({ name, price, duration, id }) {
+export default function PlanCard({
+  name,
+  price,
+  duration,
+  id,
+  packageId,
+  profilePage = false,
+}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -29,9 +36,11 @@ export default function PlanCard({ name, price, duration, id }) {
         return toast.error('Please login to continue');
       }
 
-      return dispatch(packageAssign({ redirect: (e) => navigate(e), data }));
+      return dispatch(
+        packageAssign({ redirect: (e) => navigate(e), data, profilePage })
+      );
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
 
@@ -59,6 +68,7 @@ export default function PlanCard({ name, price, duration, id }) {
     >
       <Chip size="sm" variant="outlined" color="neutral">
         {chipText(price)}
+        {packageId === id && ' / Current Plan'}
       </Chip>
       <Typography level="h2">{name}</Typography>
       <Divider inset="none" />

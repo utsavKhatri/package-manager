@@ -48,15 +48,34 @@ const CustomMenuComp = () => {
           vertical: 'top',
           horizontal: 'right',
         }}
+        sx={{
+          color: (theme) =>
+            theme.palette.mode === 'light' ? 'black' : 'white',
+        }}
       >
         <MenuItem onClick={handleClose}>
-          <GridToolbarColumnsButton />
+          <GridToolbarColumnsButton
+            color="inherit"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'initial',
+              },
+            }}
+          />
         </MenuItem>
         <MenuItem onClick={handleClose}>
-          <GridToolbarFilterButton />
+          <GridToolbarFilterButton
+            color="inherit"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'initial',
+              },
+            }}
+          />
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem>
           <GridToolbarExport
+            color="inherit"
             printOptions={{
               hideFooter: true,
               hideToolbar: true,
