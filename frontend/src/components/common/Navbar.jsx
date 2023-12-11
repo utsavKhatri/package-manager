@@ -23,6 +23,7 @@ export default function Navbar({ children }) {
   const { setMode: setJoyMode } = useJoyColorScheme();
   const { role } = useSelector((state) => state.authPage);
   const isMobile = useMediaQuery('(max-width: 600px)');
+  const isToosmall = useMediaQuery('(max-width: 400px)');
   const handleThemeToggle = () => {
     setMode(mode === 'dark' ? 'light' : 'dark');
     setJoyMode(mode === 'dark' ? 'light' : 'dark');
@@ -36,7 +37,7 @@ export default function Navbar({ children }) {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {role === 'superAdmin'
               ? isMobile
-                ? 'Welcome Super Admin'
+                ? isToosmall ? 'Welcome' :'Welcome Super Admin'
                 : 'Welcome Super Admin to Package Manager'
               : 'Package Manager'}
           </Typography>

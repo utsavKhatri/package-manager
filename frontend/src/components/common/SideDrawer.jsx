@@ -7,8 +7,8 @@ import ListItemButton from '@mui/joy/ListItemButton';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveTab } from '../../redux/slice/homeSlice';
-import ICON from '../../assets/menu_icon.png';
-import { Button } from '@mui/material';
+import { IconButton } from '@mui/material';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 const listItems = [
   {
@@ -71,13 +71,24 @@ export default function SideDrawer() {
 
   return (
     <React.Fragment>
-      <Button
+      <IconButton
         aria-label="menu-drawer"
-        variant="outlined"
+        sx={{
+          mr: 2,
+          transition: 'background-color 0.3s ease',
+          '&:hover': {
+            backgroundColor: (theme) =>
+              theme.palette.mode === 'dark' ? 'black' : '#135aa0',
+          },
+        }}
         onClick={() => setOpen(true)}
       >
-        <img src={ICON} loading="lazy" alt="logo" style={{ width: '40px' }} />
-      </Button>
+        <MenuOpenIcon
+          sx={{
+            color: 'white',
+          }}
+        />
+      </IconButton>
       <Drawer
         open={open}
         onClose={() => setOpen(false)}
