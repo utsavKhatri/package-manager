@@ -1,6 +1,8 @@
 import Joi from 'joi';
 import { Schema, model } from 'mongoose';
 
+/* The `UserSchema` is defining the structure and properties of a user document in a MongoDB
+collection. It is using the `Schema` class from the Mongoose library to create a new schema object. */
 const UserSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -19,6 +21,13 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
+/**
+ * The function `validateUser` is used to validate a user object against a schema using the Joi library
+ * in JavaScript.
+ * @param user - The `user` parameter is an object that contains the following properties:
+ * @returns The function `validateUser` returns the result of validating the `user` object against the
+ * defined schema using the `Joi` library.
+ */
 function validateUser(user) {
   const schema = Joi.object({
     name: Joi.string().required().label('Name'),
@@ -28,6 +37,14 @@ function validateUser(user) {
   });
   return schema.validate(user);
 }
+
+/**
+ * The function validates a user object for admin role, ensuring that it has a name and email, and
+ * optionally an isAdmin property.
+ * @param user - An object representing a user, with properties such as name, email, and isAdmin
+ * (indicating whether the user has admin privileges).
+ * @returns the result of validating the user object against the defined schema using the Joi library.
+ */
 function validateUserForAdmin(user) {
   const schema = Joi.object({
     name: Joi.string().required().label('Name'),

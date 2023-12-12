@@ -1,9 +1,17 @@
 import { User } from '../models/User.js';
 import { stripe, transporter } from '../utils/index.js';
 import { config } from 'dotenv';
+import { Request, Response } from 'express';
 
 config();
 
+/**
+ * Generates a function comment for the given function body.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @return {Promise} - a promise that resolves when the function completes
+ */
 export const wenhooks = async (req, res) => {
   let data;
   let eventType;
@@ -98,45 +106,3 @@ export const wenhooks = async (req, res) => {
 
   res.sendStatus(200);
 };
-
-export const checkOutSession = async (req, res) => {
-  const { sessionId } = req.query;
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-  res.send(session);
-};
-
-export const createCheckout = async (req, res) => {
-  const { priceId } = req.body;
-
-  // Create new Checkout Session for the order
-  // Other optional params include:
-  // [billing_address_collection] - to display billing address details on the page
-  // [customer] - if you have an existing Stripe Customer ID
-  // [customer_email] - lets you prefill the email input in the form
-  // [automatic_tax] - to automatically calculate sales tax, VAT and GST in the checkout page
-  // For full details see https://stripe.com/docs/api/checkout/sessions/create
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      allow_promotion_codes: true,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: 'http://localhost:5173/users',
-      cancel_url: 'http://localhost:5173/update-package',
-    });
-
-    return res.redirect(303, session.url);
-  } catch (e) {
-    res.status(400);
-    return res.send({
-      error: {
-        message: e.message,
-      },
-    });
-  }
-};
-//4242424242424242

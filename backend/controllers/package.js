@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { Request, Response } from 'express';
 import { Package, validatePackage } from '../models/Package.js';
 import { User } from '../models/User.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
@@ -7,6 +8,13 @@ import { config } from 'dotenv';
 
 config();
 
+/**
+ * Creates a new package.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @return {Object} The response object.
+ */
 export const createPackage = async (req, res) => {
   try {
     const { name, price, status, duration } = req.body;
@@ -52,6 +60,13 @@ export const createPackage = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves a package based on the provided package ID.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @return {Object} The found package.
+ */
 export const getPackage = async (req, res) => {
   try {
     const packageId = req.params.id;
@@ -65,6 +80,13 @@ export const getPackage = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves a list of packages based on the specified query parameters.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @return {Promise} A promise that resolves to the JSON response containing the list of packages.
+ */
 export const getPackages = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 10;
@@ -120,6 +142,13 @@ export const getPackages = async (req, res) => {
   }
 };
 
+/**
+ * Updates a package in the database.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @return {Promise<Object>} The updated package and a success message.
+ */
 export const updatePackage = async (req, res) => {
   try {
     const packageId = req.params.id;
@@ -178,6 +207,12 @@ export const updatePackage = async (req, res) => {
   }
 };
 
+/**
+ * Deletes a package by ID after performing necessary checks and updates.
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<void>} A JSON response indicating the operation result.
+ */
 export const deletePackages = async (req, res) => {
   try {
     const packageId = req.params.id;
@@ -218,6 +253,12 @@ export const deletePackages = async (req, res) => {
   }
 };
 
+/**
+ * Assigns a package to a user after performing necessary validations and updates.
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<void>} A JSON response indicating the operation result.
+ */
 export const assignPackageToUser = async (req, res) => {
   try {
     const { userId, packageId } = req.body;
@@ -383,6 +424,19 @@ export const assignPackageToUser = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+/**
+ * Retrieves various statistics and information for the dashboard.
+ * This function gathers data such as total package count, total user count excluding super admins,
+ * the highest selling package, the user with the most expensive package, the cheapest package,
+ * and the most expensive package.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<void>} A JSON response containing dashboard statistics and information.
+ *
+ * @throws {Error} Throws an error if there's any issue during the data retrieval process.
+ */
 export const dashboardData = async (req, res) => {
   try {
     // Get total packages count

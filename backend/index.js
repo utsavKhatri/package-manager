@@ -13,11 +13,13 @@ import authRouter from './routes/auth.js';
 import packageRouter from './routes/package.js';
 import userRouter from './routes/user.js';
 import { wenhooks } from './controllers/payment.js';
-import paymentRouter from './routes/payment.js';
 
 dotenv.config();
+
 const app = express();
 
+/* The code `app.use(express.urlencoded({ extended: true }))` is setting up middleware to parse
+URL-encoded data. This allows the server to handle form data submitted via POST requests. */
 app.use(express.urlencoded({ extended: true }));
 app.use(
   express.json({
@@ -30,7 +32,11 @@ app.use(
 );
 app.use(cors());
 
-// Connect to MongoDB
+
+/* This code is establishing a connection to a MongoDB database. It uses the `mongoose` library to
+connect to the database located at `mongodb://localhost:27017/pack-manager`. If the connection is
+successful, it logs a message saying "Connected to MongoDB". If there is an error connecting to the
+database, it logs an error message and exits the process with a status code of 1. */
 mongoose
   .connect('mongodb://localhost:27017/pack-manager')
   .then(() => console.log('Connected to MongoDB'))
@@ -39,15 +45,16 @@ mongoose
     process.exit(1);
   });
 
+
 app.use('/packages', packageRouter);
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
-app.use('/payment', paymentRouter);
-
 app.post('/webhook', wenhooks);
 
 const server = http.createServer(app);
 
+/* The code `server.on('error', (error) => { ... })` is an event listener that listens for errors that
+occur while starting the server. If an error occurs, the callback function is executed. */
 server.on('error', (error) => {
   if (error.syscall !== 'listen') {
     throw error;
@@ -69,6 +76,8 @@ server.on('error', (error) => {
   }
 });
 
+/* The `cron.schedule` function is used to schedule a task to run at a specific time or interval. In
+this case, the task is scheduled to run every day at midnight (`'0 0 * * *'`). */
 cron.schedule('0 0 * * *', async () => {
   const upMapingData = await UserPackageMap.find({});
   if (upMapingData && upMapingData.length > 0) {

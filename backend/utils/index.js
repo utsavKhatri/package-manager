@@ -5,6 +5,11 @@ config();
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET);
 
+/**
+ * The function generates a strong password of length 8 using a combination of lowercase letters,
+ * uppercase letters, numbers, and special characters.
+ * @returns The function `generateStrongPassword` returns a randomly generated strong password.
+ */
 export const generateStrongPassword = () => {
   const length = 8;
   const charset =

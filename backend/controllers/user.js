@@ -2,7 +2,15 @@ import { User, validateUserForAdmin } from '../models/User.js';
 import bcrypt from 'bcrypt';
 import { transporter, generateStrongPassword } from '../utils/index.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
+import { Request, Response } from 'express';
 
+/**
+ * Creates a new user.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @return {Object} The response object containing the status and message.
+ */
 export const createUser = async (req, res) => {
   try {
     const { name, email, isAdmin } = req.body;
@@ -69,6 +77,13 @@ export const createUser = async (req, res) => {
   }
 };
 
+/**
+ * Updates a user's information.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @return {Object} The updated user object or an error message.
+ */
 export const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -140,6 +155,13 @@ export const updateUser = async (req, res) => {
   }
 };
 
+/**
+ * Deletes a user.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {object} The response JSON object with a message indicating the result of the deletion.
+ */
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -179,6 +201,13 @@ export const deleteUser = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves a user by their ID.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {object} The found user.
+ */
 export const getUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -210,6 +239,13 @@ export const getUser = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves a list of users with pagination.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Object} The list of users with pagination details.
+ */
 export const getUsers = async (req, res) => {
   try {
     let { page = 1, pageSize = 10 } = req.query;
