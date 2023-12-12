@@ -14,12 +14,13 @@ const CustomTable = ({ data, columns, totalPages }) => {
       variant={theme.palette.mode === 'dark' ? 'outlined' : 'elevation'}
       sx={{
         borderColor: theme.palette.mode === 'dark' ? '#555' : '#ccc',
-        borderRadius: '16px',
+        borderRadius: '12px',
         boxShadow:
           'rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px',
         overflow: 'auto',
         width: '100%',
-        borderBottom: 'none',
+        border: 'none',
+        borderStyle: 'none',
         '&::-webkit-scrollbar': {
           display: 'none',
         },
@@ -56,12 +57,14 @@ const CustomTable = ({ data, columns, totalPages }) => {
             ),
           }}
           sx={{
+            borderRadius: '12px',
             '& .MuiDataGrid-root': {
               backgroundColor: (theme) =>
                 theme.palette.mode === 'light' ? '#FFFFFF' : '#1E1E1E',
-              borderRadius: '8px',
               padding: 1,
               border: 'none',
+              borderRadius: '12px',
+              borderStyle: 'none',
               boxShadow: (theme) =>
                 theme.palette.mode === 'light'
                   ? '0 2px 4px rgba(0, 0, 0, 0.1)'
@@ -82,15 +85,19 @@ const CustomTable = ({ data, columns, totalPages }) => {
                   height: '7px',
                 },
                 '&::-webkit-scrollbar-track': {
+                  border: 'none',
                   background: (theme) =>
                     theme.palette.mode === 'light' ? '#FFFFFF' : '#1E1E1E',
                 },
                 '&::-webkit-scrollbar-thumb': {
+                  display: 'none',
                   backgroundColor: (theme) =>
                     theme.palette.mode === 'light' ? '#e8e8e8' : '#2D2D2D',
                   borderRadius: '8px',
+                  transition: 'all 0.5s ease',
                 },
                 '&::-webkit-scrollbar-thumb:hover': {
+                  display: 'block',
                   background: (theme) =>
                     theme.palette.mode === 'light' ? '#d3d3d3' : '#555',
                 },

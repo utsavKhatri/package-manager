@@ -5,6 +5,13 @@ import { Package } from '../models/Package.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
 import { isPast } from 'date-fns';
 
+/**
+ * Authenticates a user by checking their email and password.
+ *
+ * @param {Object} req - the request object
+ * @param {Object} res - the response object
+ * @return {Object} the JSON response with user information and a token
+ */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -66,6 +73,13 @@ export const login = async (req, res) => {
   }
 };
 
+/**
+ * Registers a new user.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} The response object with a success or error message.
+ */
 export const register = async (req, res) => {
   try {
     const { name, email, password, isAdmin } = req.body;
@@ -116,6 +130,13 @@ export const register = async (req, res) => {
   }
 };
 
+/**
+ * Logout function that handles user logout.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} Returns a JSON object with a message property indicating the success or failure of the logout operation.
+ */
 export const logout = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -135,6 +156,13 @@ export const logout = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves the user information based on the provided user ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} The user information or an error message.
+ */
 export const me = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -165,6 +193,13 @@ export const me = async (req, res) => {
   }
 };
 
+/**
+ * Updates the user's password.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} The response object with a success or error message.
+ */
 export const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;

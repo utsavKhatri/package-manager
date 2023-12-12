@@ -31,13 +31,21 @@ export default function Navbar({ children }) {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        sx={{
+          backgroundColor: (theme) =>
+            theme.palette.mode === 'light' && '#005b85',
+        }}
+      >
         <Toolbar>
           <SideDrawer />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {role === 'superAdmin'
               ? isMobile
-                ? isToosmall ? 'Welcome' :'Welcome Super Admin'
+                ? isToosmall
+                  ? 'Welcome'
+                  : 'Welcome Super Admin'
                 : 'Welcome Super Admin to Package Manager'
               : 'Package Manager'}
           </Typography>

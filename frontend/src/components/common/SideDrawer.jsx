@@ -78,16 +78,12 @@ export default function SideDrawer() {
           transition: 'background-color 0.3s ease',
           '&:hover': {
             backgroundColor: (theme) =>
-              theme.palette.mode === 'dark' ? 'black' : '#135aa0',
+              theme.palette.mode === 'dark' ? 'black' : '#015b90',
           },
         }}
         onClick={() => setOpen(true)}
       >
-        <MenuOpenIcon
-          sx={{
-            color: 'white',
-          }}
-        />
+        <MenuOpenIcon sx={{ color: 'white' }} />
       </IconButton>
       <Drawer
         open={open}
@@ -100,10 +96,10 @@ export default function SideDrawer() {
               maxHeight: 'calc(100vh - 45px)',
             },
           },
-          '--Drawer-transitionDuration': open ? '0.4s' : '0.2s',
+          '--Drawer-transitionDuration': open ? '0.4s' : '0.3s',
           '--Drawer-transitionFunction': open
             ? 'cubic-bezier(0.79,0.14,0.15,0.86)'
-            : 'cubic-bezier(0.77,0,0.18,1)',
+            : 'ease-out',
         }}
       >
         <Box role="presentation" sx={{ p: 2 }}>
@@ -116,13 +112,14 @@ export default function SideDrawer() {
                     transition: 'padding 0.2s ease-out',
                     '&.Mui-selected': {
                       backgroundColor: (theme) =>
-                        theme.palette.mode === 'dark' ? 'white' : '#1976D2',
+                        theme.palette.mode === 'dark' ? 'white' : '#005b85',
                       color: (theme) =>
                         theme.palette.mode === 'dark' ? 'black' : 'white',
                       paddingBlock: '8px',
                       fontSize: '16px',
                       borderRadius: '8px',
-                      transition: 'all 0.3s cubic-bezier(0.3, 0.07, 0, 1.09)',
+                      transition:
+                        'background-color 0.3s cubic-bezier(0.3, 0.07, 0, 1.09)',
                     },
                     '&:hover': {
                       borderRadius: '8px',
