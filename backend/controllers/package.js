@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { Request, Response } from 'express';
 import { Package, validatePackage } from '../models/Package.js';
 import { User } from '../models/User.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
@@ -11,8 +10,8 @@ config();
 /**
  * Creates a new package.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Object} The response object.
  */
 export const createPackage = async (req, res) => {
@@ -63,8 +62,8 @@ export const createPackage = async (req, res) => {
 /**
  * Retrieves a package based on the provided package ID.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Object} The found package.
  */
 export const getPackage = async (req, res) => {
@@ -83,8 +82,8 @@ export const getPackage = async (req, res) => {
 /**
  * Retrieves a list of packages based on the specified query parameters.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Promise} A promise that resolves to the JSON response containing the list of packages.
  */
 export const getPackages = async (req, res) => {
@@ -145,8 +144,8 @@ export const getPackages = async (req, res) => {
 /**
  * Updates a package in the database.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Promise<Object>} The updated package and a success message.
  */
 export const updatePackage = async (req, res) => {
@@ -209,8 +208,8 @@ export const updatePackage = async (req, res) => {
 
 /**
  * Deletes a package by ID after performing necessary checks and updates.
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @returns {Promise<void>} A JSON response indicating the operation result.
  */
 export const deletePackages = async (req, res) => {
@@ -255,8 +254,8 @@ export const deletePackages = async (req, res) => {
 
 /**
  * Assigns a package to a user after performing necessary validations and updates.
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @returns {Promise<void>} A JSON response indicating the operation result.
  */
 export const assignPackageToUser = async (req, res) => {
@@ -431,8 +430,8 @@ export const assignPackageToUser = async (req, res) => {
  * the highest selling package, the user with the most expensive package, the cheapest package,
  * and the most expensive package.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @returns {Promise<void>} A JSON response containing dashboard statistics and information.
  *
  * @throws {Error} Throws an error if there's any issue during the data retrieval process.

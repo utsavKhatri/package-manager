@@ -4,13 +4,12 @@ import { User, validateUser } from '../models/User.js';
 import { Package } from '../models/Package.js';
 import { UserPackageMap } from '../models/UserPackageMap.js';
 import { isPast } from 'date-fns';
-import { Request, Response } from 'express';
 
 /**
  * Authenticates a user by checking their email and password.
  *
- * @param {Request} req - the request object
- * @param {Response} res - the response object
+ * @param {import('express').Request} req - the request object
+ * @param {import('express').Response} res - the response object
  * @return {Object} the JSON response with user information and a token
  */
 export const login = async (req, res) => {
@@ -77,8 +76,8 @@ export const login = async (req, res) => {
 /**
  * Registers a new user.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Object} The response object with a success or error message.
  */
 export const register = async (req, res) => {
@@ -134,8 +133,8 @@ export const register = async (req, res) => {
 /**
  * Logout function that handles user logout.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Object} Returns a JSON object with a message property indicating the success or failure of the logout operation.
  */
 export const logout = async (req, res) => {
@@ -160,8 +159,8 @@ export const logout = async (req, res) => {
 /**
  * Retrieves the user information based on the provided user ID.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Object} The user information or an error message.
  */
 export const me = async (req, res) => {
@@ -197,8 +196,8 @@ export const me = async (req, res) => {
 /**
  * Updates the user's password.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
  * @return {Object} The response object with a success or error message.
  */
 export const changePassword = async (req, res) => {

@@ -1,15 +1,14 @@
 import { User } from '../models/User.js';
 import { stripe, transporter } from '../utils/index.js';
 import { config } from 'dotenv';
-import { Request, Response } from 'express';
 
 config();
 
 /**
  * Generates a function comment for the given function body.
  *
- * @param {Request} req - the request object
- * @param {Response} res - the response object
+ * @param {import('express').Request} req - the request object
+ * @param {import('express').Response} res - the response object
  * @return {Promise} - a promise that resolves when the function completes
  */
 export const wenhooks = async (req, res) => {
