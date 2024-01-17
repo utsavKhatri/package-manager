@@ -20,8 +20,13 @@ export const handleLogin = createAsyncThunk(
       if (response?.token) {
         localStorage.setItem('user', JSON.stringify(response));
         await dispatch(setAuth(true));
-
-        if (response.role) {
+        if (response.role === 'businessUser') {
+          if (response.isExpired) {
+            await redirect('/update-package');
+            return fulfillWithValue(response);
+          }
+          await redirect('/users');
+        } else {
           await redirect('/');
         }
       }
